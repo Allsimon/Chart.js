@@ -271,7 +271,7 @@ function parse(input, scale) {
 	}
 
 	if (options.round) {
-		value.startOf(options.round);
+		value = startOf(options.round, value);
 	}
 
 	return value.valueOf();
@@ -392,7 +392,7 @@ function generate(min, max, capacity, options) {
 		// Align the first tick on the previous `minor` unit aligned on the `major` unit:
 		// we first aligned time on the previous `major` unit then add the number of full
 		// stepSize there is between first and the previous major time.
-		time.startOf(major);
+		time = startOf(major, time);
 		time.add(~~((first - time) / (interval.size * stepSize)) * stepSize, minor);
 	}
 
@@ -442,7 +442,7 @@ function ticksFromTimestamps(values, majorUnit) {
 
 	for (i = 0, ilen = values.length; i < ilen; ++i) {
 		value = values[i];
-		major = majorUnit ? value === millisToDate(value).startOf(majorUnit).valueOf() : false;
+		major = majorUnit ? value === startOf(majorUnit, millisToDate(value)).valueOf() : false;
 
 		ticks.push({
 			value: value,
@@ -734,7 +734,7 @@ module.exports = function() {
 			var minorFormat = formats[me._unit];
 			var majorUnit = me._majorUnit;
 			var majorFormat = formats[majorUnit];
-			var majorTime = (luxon ? tick : tick.clone()).startOf(majorUnit).valueOf();
+			var majorTime = startOf(majorUnit, tick).valueOf();
 			var majorTickOpts = options.ticks.major;
 			var major = majorTickOpts.enabled && majorUnit && majorFormat && time === majorTime;
 			var format = formatOverride ? formatOverride : major ? majorFormat : minorFormat;
