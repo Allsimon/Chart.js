@@ -200,7 +200,7 @@ function millisToDate(value) {
 function startOf(unit, date) {
 	if (luxon) {
 		// Luxon API throws if `unit` is undefined, the following line try to reproduce Moment behaviour
-		return !!unit ? date : date.startOf(unit);
+		return !unit ? date : date.startOf(unit);
 	}
 	return date.clone().startOf(unit);
 }
@@ -208,7 +208,7 @@ function startOf(unit, date) {
 function endOf(unit, date) {
 	if (luxon) {
 		// Luxon API throws if `unit` is undefined, the following line try to reproduce Moment behaviour
-		return !!unit ? date : date.endOf(unit);
+		return !unit ? date : date.endOf(unit);
 	}
 	return date.clone().endOf(unit);
 }
