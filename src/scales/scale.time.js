@@ -205,6 +205,14 @@ function startOf(unit, date) {
 	return date.clone().startOf(unit);
 }
 
+function endOf(unit, date) {
+	if (luxon) {
+		// Luxon API throws if `unit` is undefined, the following line try to reproduce Moment behaviour
+		return !!unit ? date : date.endOf(unit);
+	}
+	return date.clone().endOf(unit);
+}
+
 /**
  * Convert the given value to a moment object using the given time options.
  * @see http://momentjs.com/docs/#/parsing/
