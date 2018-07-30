@@ -191,7 +191,18 @@ function interpolate(table, skey, sval, tkey) {
 }
 
 function millisToDate(value) {
-	return luxon ? DateTime.fromMillis(value) : moment(value);
+	if (!!value) {
+		return luxon ? DateTime.fromMillis(value) : moment(value);
+	}
+	return luxon ? luxon() : moment();
+}
+
+function startOf(unit, date) {
+	if (luxon) {
+		// Luxon API throws if `unit` is undefined, the following line try to reproduce Moment behaviour
+		return !!unit ? date : date.startOf(unit);
+	}
+	return date.clone().startOf(unit);
 }
 
 /**
@@ -343,8 +354,8 @@ function generate(min, max, capacity, options) {
 	var weekday = minor === 'week' ? timeOpts.isoWeekday : false;
 	var majorTicksEnabled = options.ticks.major.enabled;
 	var interval = INTERVALS[minor];
-	var first = moment(min);
-	var last = moment(max);
+	var first = millisToDate(min);
+	var last = millisToDate(max);
 	var ticks = [];
 	var time;
 
@@ -359,15 +370,15 @@ function generate(min, max, capacity, options) {
 	}
 
 	// Align first/last ticks on unit
-	first = first.startOf(weekday ? 'day' : minor);
-	last = last.startOf(weekday ? 'day' : minor);
+	first = startOf(weekday ? 'day' : minor, first);
+	last = startOf(weekday ? 'day' : minor, last);
 
 	// Make sure that the last tick include max
 	if (last < max) {
 		last.add(1, minor);
 	}
 
-	time = moment(first);
+	time = millisToDate(first);
 
 	if (majorTicksEnabled && major && !weekday && !timeOpts.round) {
 		// Align the first tick on the previous `minor` unit aligned on the `major` unit:
@@ -614,8 +625,8 @@ module.exports = function() {
 			max = parse(timeOpts.max, me) || max;
 
 			// In case there is no valid min/max, set limits based on unit time option
-			min = min === MAX_INTEGER ? +moment().startOf(unit) : min;
-			max = max === MIN_INTEGER ? +moment().endOf(unit) + 1 : max;
+			min = min === MAX_INTEGER ? +startOf(unit, millisToDate()) : min;
+			max = max === MIN_INTEGER ? +endOf(unit, millisToDate()) + 1 : max;
 
 			// Make sure that max is strictly higher than min (required by the lookup table)
 			me.min = Math.min(min, max);
@@ -780,7 +791,7 @@ module.exports = function() {
 			var pos = (size ? (pixel - start) / size : 0) * (me._offsets.left + 1 + me._offsets.left) - me._offsets.right;
 			var time = interpolate(me._table, 'pos', pos, 'time');
 
-			return moment(time);
+			return millisToDate(time);
 		},
 
 		/**
@@ -807,7 +818,7 @@ module.exports = function() {
 
 			var formatOverride = me.options.time.displayFormats.millisecond;	// Pick the longest format for guestimation
 
-			var exampleLabel = me.tickFormatFunction(moment(exampleTime), 0, [], formatOverride);
+			var exampleLabel = me.tickFormatFunction(millisToDate(exampleTime), 0, [], formatOverride);
 			var tickLabelWidth = me.getLabelWidth(exampleLabel);
 			var innerWidth = me.isHorizontal() ? me.width : me.height;
 
