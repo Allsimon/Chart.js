@@ -383,7 +383,13 @@ function generate(min, max, capacity, options) {
 
 	// Make sure that the last tick include max
 	if (last < max) {
-		last.add(1, minor);
+		if (luxon) {
+			const obj = {};
+			obj[minor] = 1;
+			last.plus(obj);
+		} else {
+			last.add(1, minor);
+		}
 	}
 
 	time = millisToDate(first);
